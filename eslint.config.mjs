@@ -1,11 +1,16 @@
-import eslintConfig from 'eslint-config-next';
+// eslint.config.mjs
+const { FlatCompat } = require('@eslint/eslintrc');
+const path = require('path');
 
-export default [
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+module.exports = [
+  ...compat.extends('next', 'next/core-web-vitals'),
   {
-    ...eslintConfig,
     rules: {
-      ...eslintConfig.rules,
-      '@typescript-eslint/no-explicit-any': 'off', // <-- disables the 'no-explicit-any' rule
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

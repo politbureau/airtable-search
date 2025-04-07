@@ -25,7 +25,7 @@ async function getReturns() {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { q } = req.query;
-    const allData: any[] = await getReturns();
+    const allData = await getReturns() as any[];
 
     console.log("Total records in DB:", allData.length);
 
