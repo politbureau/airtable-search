@@ -21,7 +21,6 @@ export default function Home() {
     fetch(`/api/search?q=${encodeURIComponent(query)}`)
       .then((res) => res.json())
       .then((data) => {
-        // Sort results by lastModifiedTime descending
         const sorted = data.sort((a: any, b: any) => {
           const dateA = new Date(a.lastModifiedTime || a.createdTime || 0).getTime();
           const dateB = new Date(b.lastModifiedTime || b.createdTime || 0).getTime();
@@ -30,7 +29,7 @@ export default function Home() {
 
         setResults(sorted);
         setIsLoading(false);
-        setElapsed((performance.now() - startTime) / 1000); // seconds
+        setElapsed((performance.now() - startTime) / 1000);
       })
       .catch((err) => {
         console.error('Search error:', err);
@@ -39,36 +38,33 @@ export default function Home() {
   }, [query]);
 
   return (
-    <main
-      style={{ backgroundColor: 'white', fontFamily: 'Nunito Sans, sans-serif', fontSize: '18px' }}
-      className="max-w-4xl mx-auto p-6"
-    >
-      <div className="flex items-center mb-4">
-        <img
-          src="https://www.metroscg.com/hubfs/Media%20Centre/Logos/PNG%20Logos/Metro%20Supply%20Chain%20Primary%20Logo_Full%20Colour_EN.png"
-          alt="Metro Logo"
-          className="h-12 mr-4"
-        />
-        <h1
-          style={{ color: '#545859', fontFamily: 'canada-type-gibson', fontStyle: 'normal' }}
-          className="text-3xl font-bold"
-        >
-          Network & Returns Archive Search
-        </h1>
-      </div>
+    <main className="max-w-4xl mx-auto p-6">
+      <h1
+        className="text-3xl font-bold mb-4"
+        style={{
+          color: '#545859',
+          fontFamily: 'Roboto, sans-serif',
+        }}
+      >
+        Network & Returns Archive Search
+      </h1>
+
       <input
         type="text"
         placeholder="Search by Return Tracking, Order, BOL or RA #"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full p-3 border border-black rounded-lg text-lg focus:outline-none focus:ring focus:border-blue-400"
+        className="w-full p-3 border border-black rounded-lg text-lg text-black bg-white font-sans"
+        style={{
+          fontFamily: 'Roboto, sans-serif',
+        }}
       />
 
       <div className="mt-6">
         {isLoading ? (
-          <p className="text-gray-500 italic">🔍 Searching for records...</p>
+          <p className="italic text-gray-600">🔍 Searching for records...</p>
         ) : query && results.length === 0 ? (
-          <p className="text-red-500 italic">❌ No results found.</p>
+          <p className="italic text-red-600">❌ No results found.</p>
         ) : (
           <>
             <ResultsList results={results} />
