@@ -1,15 +1,40 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import mysql from 'mysql2/promise';
-import Fuse from 'fuse.js';
 import dotenv from 'dotenv';
-import path from 'path';
+import * as path from 'path';
+import Fuse from 'fuse.js';
 
-// Load .env.local variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
-const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME } = process.env;
+const {
+  DB_HOST,
+  DB_PORT,
+  DB_USER,
+  DB_PASSWORD,
+  DB_NAME,
+} = process.env;
+
+let pool: mysql.Pool | null = null;
+
+function getPool() {
+  if (!pool) {
+    pool = mysql.createPool({
+      host: DB_HOST,
+      port: Number(DB_PORT),
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+    });
+  }
+  return pool;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const startTime = Date.now();
+
   try {
     const { q } = req.query;
 
@@ -18,57 +43,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const query = q.trim().toLowerCase();
+    const pool = getPool();
 
-    const connection = await mysql.createConnection({
-      host: DB_HOST,
-      port: Number(DB_PORT),
-      user: DB_USER,
-      password: DB_PASSWORD,
-      database: DB_NAME,
-    });
+    const [rows] = await pool.execute('SELECT * FROM Returns');
+    const allData = rows as any[];
 
-    // Exact match query for static fields
-    const [exactRows] = await connection.execute(
-      `
-      SELECT * FROM Returns
-      WHERE LOWER(return_tracking) = ?
-         OR LOWER(order_number) = ?
-         OR LOWER(ra) = ?
-         OR LOWER(item_number) = ?
-         OR LOWER(rma_number) = ?
-      LIMIT 50
-      `,
-      [query, query, query, query, query]
+    const staticFields = [
+      'return_tracking',
+      'order_number',
+      'bol_number',
+      'ra',
+      'item_number',
+      'rma_number',
+    ];
+
+    const exactMatches = allData.filter(record =>
+      staticFields.some(key =>
+        record[key]?.toString().toLowerCase() === query
+      )
     );
 
-    // Fuzzy match on member_name
-    const [allRows] = await connection.execute(
-      'SELECT * FROM Returns WHERE member_name IS NOT NULL LIMIT 500'
-    );
-
-    await connection.end();
-
-    const fuse = new Fuse(allRows as any[], {
+    const fuse = new Fuse(allData, {
       keys: ['member_name'],
       threshold: 0.4,
     });
 
-    const fuzzyMatches = fuse.search(query).map(result => result.item);
+    const fuzzyMatches = fuse.search(query).map(r => r.item);
 
-    // Combine exact and fuzzy matches, deduplicated by recordId
     const combinedMap = new Map();
-    (exactRows as any[]).forEach(record => {
-      combinedMap.set(record.recordId, record);
-    });
-    fuzzyMatches.forEach(record => {
-      combinedMap.set(record.recordId, record);
-    });
+    exactMatches.forEach(r => combinedMap.set(r.recordId, r));
+    fuzzyMatches.forEach(r => combinedMap.set(r.recordId, r));
 
     const combinedResults = Array.from(combinedMap.values());
 
+    // Sort by created_time DESC (most recent first)
+    combinedResults.sort((a, b) => {
+      const dateA = new Date(a.created_time).getTime();
+      const dateB = new Date(b.created_time).getTime();
+      return dateB - dateA;
+    });
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`🔍 Found ${combinedResults.length} results in ${elapsed}s`);
+
     res.status(200).json(combinedResults);
-  } catch (err) {
-    console.error('Error in search API:', err);
+  } catch (err: any) {
+    console.error('❌ Search API Error:', err.message || err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
