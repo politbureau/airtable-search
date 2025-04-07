@@ -21,40 +21,62 @@ type Props = {
 
 export default function ResultsList({ results }: Props) {
   if (results.length === 0) {
-    return <p>No matching records found.</p>;
+    return <p className="text-black">No matching records found.</p>;
   }
 
   return (
     <ul className="space-y-4">
       {results.map((record) => (
-        <li key={record.recordId} className="border border-black p-4 rounded-xl shadow">
+        <li
+          key={record.recordId}
+          className="border border-black p-4 rounded-xl shadow bg-white"
+        >
           <p
-            style={{ color: '#f2a900', fontFamily: 'canada-type-gibson', fontStyle: 'normal' }}
-            className="font-bold text-lg"
+            className="text-lg font-bold mb-1"
+            style={{
+              color: '#f2a900',
+              fontFamily: 'Roboto, sans-serif',
+              fontStyle: 'normal',
+            }}
           >
             {record.return_tracking || record.order_number || record.ra}
           </p>
-          <p>
-            <strong>Member:</strong> {record.member_name} | <strong>Order #:</strong> {record.order_number}
-            {record.return_tracking && <> | <strong>Return Tracking:</strong> {record.return_tracking}</>}
+          <p className="text-black font-sans">
+            <strong>Member:</strong> {record.member_name} |
+            <strong> Order #:</strong> {record.order_number}
+            {record.return_tracking && (
+              <> | <strong>Return Tracking:</strong> {record.return_tracking}</>
+            )}
             {record.ra && <> | <strong>RA:</strong> {record.ra}</>}
           </p>
-          <p>
-            {record.baseName && <><strong>Base Name:</strong> {record.baseName} | </>}
-            {record.createdTime && <><strong>Created:</strong> {record.createdTime} | </>}
-            {record.lastModifiedTime && <><strong>Modified:</strong> {record.lastModifiedTime}</>}
+          <p className="text-black font-sans">
+            {record.baseName && (
+              <>
+                <strong>Base Name:</strong> {record.baseName} |{' '}
+              </>
+            )}
+            {record.createdTime && (
+              <>
+                <strong>Created:</strong> {record.createdTime} |{' '}
+              </>
+            )}
+            {record.lastModifiedTime && (
+              <>
+                <strong>Modified:</strong> {record.lastModifiedTime}
+              </>
+            )}
           </p>
           {record.airtable_url ? (
             <a
               href={record.airtable_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline mt-2 inline-block"
+              className="text-blue-700 underline mt-2 inline-block font-sans"
             >
               View Record in Airtable
             </a>
           ) : (
-            <p className="text-gray-400 mt-2">No Airtable link available</p>
+            <p className="text-gray-400 mt-2 font-sans">No Airtable link available</p>
           )}
         </li>
       ))}
