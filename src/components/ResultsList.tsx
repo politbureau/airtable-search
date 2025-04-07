@@ -27,13 +27,15 @@ export default function ResultsList({ results }: Props) {
   return (
     <ul className="space-y-4">
       {results.map((record) => (
-        <li key={record.recordId} className="border p-4 rounded-xl shadow">
-          <p className="font-bold text-lg">
+        <li key={record.recordId} className="border border-black p-4 rounded-xl shadow">
+          <p
+            style={{ color: '#f2a900', fontFamily: 'canada-type-gibson', fontStyle: 'normal' }}
+            className="font-bold text-lg"
+          >
             {record.return_tracking || record.order_number || record.ra}
           </p>
           <p>
-            <strong>Member:</strong> {record.member_name} |
-            <strong> Order #:</strong> {record.order_number}
+            <strong>Member:</strong> {record.member_name} | <strong>Order #:</strong> {record.order_number}
             {record.return_tracking && <> | <strong>Return Tracking:</strong> {record.return_tracking}</>}
             {record.ra && <> | <strong>RA:</strong> {record.ra}</>}
           </p>
