@@ -39,14 +39,29 @@ export default function Home() {
   }, [query]);
 
   return (
-    <main className="max-w-4xl mx-auto p-6 font-sans">
-      <h1 className="text-3xl font-bold mb-4">Returns Search</h1>
+    <main
+      style={{ backgroundColor: 'white', fontFamily: 'Nunito Sans, sans-serif', fontSize: '18px' }}
+      className="max-w-4xl mx-auto p-6"
+    >
+      <div className="flex items-center mb-4">
+        <img
+          src="https://www.metroscg.com/hubfs/Media%20Centre/Logos/PNG%20Logos/Metro%20Supply%20Chain%20Primary%20Logo_Full%20Colour_EN.png"
+          alt="Metro Logo"
+          className="h-12 mr-4"
+        />
+        <h1
+          style={{ color: '#545859', fontFamily: 'canada-type-gibson', fontStyle: 'normal' }}
+          className="text-3xl font-bold"
+        >
+          Network & Returns Archive Search
+        </h1>
+      </div>
       <input
         type="text"
-        placeholder="Search Returns..."
+        placeholder="Search by Return Tracking, Order, BOL or RA #"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring focus:border-blue-400"
+        className="w-full p-3 border border-black rounded-lg text-lg focus:outline-none focus:ring focus:border-blue-400"
       />
 
       <div className="mt-6">
