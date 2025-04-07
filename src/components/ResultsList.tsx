@@ -19,6 +19,23 @@ type Props = {
   results: Result[];
 };
 
+// Format timestamp to: January 16 2025 @ 1:14PM
+const formatTimestamp = (timestamp?: string) => {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return date
+    .toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+    .replace(',', '')
+    .replace(' at', ' @');
+};
+
 export default function ResultsList({ results }: Props) {
   if (results.length === 0) {
     return <p className="text-black">No matching records found.</p>;
@@ -57,12 +74,12 @@ export default function ResultsList({ results }: Props) {
             )}
             {record.createdTime && (
               <>
-                <strong>Created:</strong> {record.createdTime} |{' '}
+                <strong>Created:</strong> {formatTimestamp(record.createdTime)} |{' '}
               </>
             )}
             {record.lastModifiedTime && (
               <>
-                <strong>Modified:</strong> {record.lastModifiedTime}
+                <strong>Modified:</strong> {formatTimestamp(record.lastModifiedTime)}
               </>
             )}
           </p>
