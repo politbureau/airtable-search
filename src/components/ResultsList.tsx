@@ -1,47 +1,61 @@
 import React from 'react';
 
-type SearchResult = {
+type Result = {
   recordId: string;
-  airtableUrl: string;
-  member_name: string;
-  order_number: string;
-  return_tracking: string;
-  ra: string;
-  bol_number: string;
-  item_number: string;
-  rma_number: string;
+  return_tracking?: string;
+  order_number?: string;
+  bol_number?: string;
+  ra?: string;
+  member_name?: string;
+  item_number?: string;
+  rma_number?: string;
   baseName?: string;
   createdTime?: string;
   lastModifiedTime?: string;
+  airtable_url?: string;
 };
 
 type Props = {
-  results: SearchResult[];
+  results: Result[];
 };
 
-const ResultsList: React.FC<Props> = ({ results }) => {
+export default function ResultsList({ results }: Props) {
+  if (results.length === 0) {
+    return <p>No matching records found.</p>;
+  }
+
   return (
-    <div className="space-y-4">
-      {results.map((result) => (
-        <div key={result.recordId} className="border p-4 rounded-xl shadow-md bg-white">
-          <div className="mb-2 text-sm text-gray-700">
-            <strong>Member:</strong> {result.member_name} | <strong>Order #:</strong> {result.order_number} | <strong>Return Tracking:</strong> {result.return_tracking} | <strong>RA:</strong> {result.ra}
-          </div>
-          <div className="text-sm text-gray-600">
-            <strong>Base Name:</strong> {result.baseName || 'Unknown'} | <strong>Created:</strong> {result.createdTime || 'N/A'} | <strong>Modified:</strong> {result.lastModifiedTime || 'N/A'}
-          </div>
-          <a
-            href={result.airtableUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline hover:text-blue-800 mt-2 inline-block"
-          >
-            View Record in Airtable
-          </a>
-        </div>
+    <ul className="space-y-4">
+      {results.map((record) => (
+        <li key={record.recordId} className="border p-4 rounded-xl shadow">
+          <p className="font-bold text-lg">
+            {record.return_tracking || record.order_number || record.ra}
+          </p>
+          <p>
+            <strong>Member:</strong> {record.member_name} |
+            <strong> Order #:</strong> {record.order_number}
+            {record.return_tracking && <> | <strong>Return Tracking:</strong> {record.return_tracking}</>}
+            {record.ra && <> | <strong>RA:</strong> {record.ra}</>}
+          </p>
+          <p>
+            {record.baseName && <><strong>Base Name:</strong> {record.baseName} | </>}
+            {record.createdTime && <><strong>Created:</strong> {record.createdTime} | </>}
+            {record.lastModifiedTime && <><strong>Modified:</strong> {record.lastModifiedTime}</>}
+          </p>
+          {record.airtable_url ? (
+            <a
+              href={record.airtable_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline mt-2 inline-block"
+            >
+              View Record in Airtable
+            </a>
+          ) : (
+            <p className="text-gray-400 mt-2">No Airtable link available</p>
+          )}
+        </li>
       ))}
-    </div>
+    </ul>
   );
-};
-
-export default ResultsList;
+}
