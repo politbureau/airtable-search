@@ -1,10 +1,11 @@
-import { next } from "@eslint-config/next";
+import eslintConfig from 'eslint-config-next';
 
 export default [
-  ...next(),
   {
+    ...eslintConfig,
     rules: {
-      "@typescript-eslint/no-explicit-any": "off"
-    }
-  }
+      ...eslintConfig.rules,
+      '@typescript-eslint/no-explicit-any': 'off', // <-- disables the 'no-explicit-any' rule
+    },
+  },
 ];
